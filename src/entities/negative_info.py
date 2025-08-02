@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class NegativeInfo(BaseModel):
     id: Optional[int] = None
-    partner_id: Optional[int] = None
+    client_id: Optional[int] = None
     status: Optional[str] = Field(default=None, alias="Статус")
     removed_from_sme_registry: Optional[str] = Field(default=None, alias="ИсклИзРеестраМСП")
     recently_registered: Optional[str] = Field(default=None, alias="РегНедавно")

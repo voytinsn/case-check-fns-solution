@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `clients` (
   `id` int NOT NULL,
   `company_name` text COLLATE utf8mb4_general_ci NOT NULL,
-  `adress` text COLLATE utf8mb4_general_ci,
+  `address` text COLLATE utf8mb4_general_ci,
   `inn` varchar(12) COLLATE utf8mb4_general_ci NOT NULL,
   `okved` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `director` text COLLATE utf8mb4_general_ci,
@@ -42,7 +42,7 @@ CREATE TABLE `clients` (
 -- Дамп данных таблицы `clients`
 --
 
-INSERT INTO clients (id, company_name, adress, inn, okved, director, director_function, date_reg) VALUES
+INSERT INTO clients (id, company_name, address, inn, okved, director, director_function, date_reg) VALUES
 (1, 'Спецмед', NULL, '2312205769', NULL, NULL, 'Директор', NULL),
 (2, 'ООО "СПЕЦАВТОХОЗЯЙСТВО"', 'обл. Иркутская, г. Иркутск, ул. Седова, д.30, пом.4', '3811133818', '38.1', NULL, NULL, '2009-10-22'),
 (3, 'СПК "Заря"', NULL, '916005310', '01.41', 'Хасанов Борис Магометович', NULL, '2008-02-08'),
