@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql:9.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: crm
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:3306:3306"
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+  fns_mock_api:
+    build: ./mock_api
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
