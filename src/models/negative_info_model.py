@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from entities.negative_info import NegativeInfo
 from models.base_model import BaseModel
@@ -55,10 +56,15 @@ class NegativeInfoModel (BaseModel):
         """
 
         try:
+            logging.debug(f"Создание таблицы {self.TABLE_NAME} при отсутствии")
             self._connect()
             cursor = self.connection.cursor()
             cursor.execute(create_table_query)
             self.connection.commit()
+            logging.info(f"Таблица {self.TABLE_NAME} успешно создана или уже существует")
+        except Exception as e:
+            logging.error(f"Ошибка при создании таблицы {self.TABLE_NAME}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()
@@ -94,10 +100,11 @@ class NegativeInfoModel (BaseModel):
         """
         cursor = None
         try:
+            logging.debug(f"Создание записи в таблице {self.TABLE_NAME} для клиента с ID {negative_info.client_id}")
             self._connect()
             cursor = self.connection.cursor()
             # Преобразуем объект NegativeInfo в словарь с именами полей (не алиасами)
-            data = negative_info.dict(exclude={"id"})  # Исключаем id, так как он автоинкрементный
+            data = negative_info.model_dump(exclude={"id"})  # Исключаем id, так как он автоинкрементный
             # Формируем кортеж значений в порядке столбцов таблицы
             values = (
                 data["client_id"],
@@ -142,8 +149,12 @@ class NegativeInfoModel (BaseModel):
             )
             cursor.execute(query, values)
             self.connection.commit()
+            logging.info(f"Запись успешно создана в таблице {self.TABLE_NAME} для клиента с ID {negative_info.client_id}")
             # Возвращаем ID созданной записи
             return cursor.lastrowid
+        except Exception as e:
+            logging.error(f"Ошибка при создании записи в таблице {self.TABLE_NAME}: {e}")
+            raise
         finally:
             if cursor:
                 cursor.close()

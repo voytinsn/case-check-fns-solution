@@ -1,3 +1,4 @@
+import logging
 from entities.client import Client
 from typing import List
 import mysql.connector
@@ -25,14 +26,19 @@ class ClientsModel(BaseModel):
         """
 
         try:
+            logging.debug(f"Проверка наличия столбца 'fns_check_date' в таблице {self.TABLE_NAME}")
             self._connect()
             cursor = self.connection.cursor()
             cursor.execute(query, (self.TABLE_NAME,))
             result = cursor.fetchone()
+        except Exception as e:
+            logging.error(f"Ошибка при проверке наличия столбца 'fns_check_date': {e}")
+            raise
         finally:
             cursor.close()
             self._close()
 
+        logging.debug(f"Результат проверки наличия столбца 'fns_check_date': {result[0] > 0}")
         return result[0] > 0
 
     def prepare_table(self):
@@ -40,7 +46,6 @@ class ClientsModel(BaseModel):
         Добавляет столбец 'fns_check_date' в таблицу 'clients', если он не существует.
         """
         if self._is_table_altered():
-            print("Столбец 'fns_check_date' уже существует.")
             return
 
         query = """
@@ -50,10 +55,15 @@ class ClientsModel(BaseModel):
         """
 
         try:
+            logging.debug(f"Добавление столбцов 'fns_check_date' и 'has_negative' в таблицу {self.TABLE_NAME}")
             self._connect()
             cursor = self.connection.cursor()
             cursor.execute(query)
             self.connection.commit()
+            logging.info(f"Столбцы 'fns_check_date' и 'has_negative' успешно добавлены в таблицу {self.TABLE_NAME}")
+        except Exception as e:
+            logging.error(f"Ошибка при добавлении столбцов в таблицу {self.TABLE_NAME}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()
@@ -70,12 +80,17 @@ class ClientsModel(BaseModel):
         FROM {self.TABLE_NAME};
         """
         try:
+            logging.debug(f"Извлечение всех записей из таблицы {self.TABLE_NAME}")
             self._connect()
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute(query)
             rows = cursor.fetchall()
+            logging.debug(f"Извлечено {len(rows)} записей из таблицы {self.TABLE_NAME}")
             clients = [Client(**row) for row in rows]
             return clients
+        except Exception as e:
+            logging.error(f"Ошибка при извлечении записей из таблицы {self.TABLE_NAME}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()
@@ -93,12 +108,17 @@ class ClientsModel(BaseModel):
         WHERE fns_check_date IS NULL;
         """
         try:
+            logging.debug(f"Извлечение из таблицы {self.TABLE_NAME} записей с fsn_check_date IS NULL")
             self._connect()
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute(query)
             rows = cursor.fetchall()
+            logging.debug(f"Извлечено {len(rows)} записей из таблицы {self.TABLE_NAME}")
             clients = [Client(**row) for row in rows]
             return clients
+        except Exception as e:
+            logging.error(f"Ошибка при извлечении записей из таблицы {self.TABLE_NAME}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()
@@ -118,15 +138,19 @@ class ClientsModel(BaseModel):
         WHERE id = %s;
         """
         try:
+            logging.debug(f"Обновление столбца 'fns_check_date' для клиента с ID {client_id} в таблице {self.TABLE_NAME}")
             self._connect()
             cursor = self.connection.cursor()
             cursor.execute(query, (check_date, client_id))
             self.connection.commit()
             if cursor.rowcount == 0:
-                print(f"Клиент с ID {client_id} не найден.")
+                logging.warning(f"Клиент с ID {client_id} не найден")
                 return False
-            print(f"Столбец 'fns_check_date' успешно обновлен для клиента с ID {client_id}.")
+            logging.info(f"Столбец 'fns_check_date' успешно обновлен для клиента с ID {client_id}")
             return True
+        except Exception as e:
+            logging.error(f"Ошибка при обновлении столбца 'fns_check_date' для клиента с ID {client_id}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()
@@ -148,15 +172,19 @@ class ClientsModel(BaseModel):
         WHERE id = %s;
         """
         try:
+            logging.debug(f"Обновление столбца 'has_negative' для клиента с ID {client_id} в таблице {self.TABLE_NAME}")
             self._connect()
             cursor = self.connection.cursor()
             cursor.execute(query, (has_negative, client_id))
             self.connection.commit()
             if cursor.rowcount == 0:
-                print(f"Клиент с ID {client_id} не найден.")
+                logging.warning(f"Клиент с ID {client_id} не найден")
                 return False
-            print(f"Столбец 'has_negative' успешно обновлен для клиента с ID {client_id}.")
+            logging.info(f"Столбец 'has_negative' успешно обновлен для клиента с ID {client_id}")
             return True
+        except Exception as e:
+            logging.error(f"Ошибка при обновлении столбца 'has_negative' для клиента с ID {client_id}: {e}")
+            raise
         finally:
             cursor.close()
             self._close()

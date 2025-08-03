@@ -1,5 +1,6 @@
 from typing import Dict
 import requests
+import logging
 
 
 class FnsApiClient:
@@ -20,10 +21,16 @@ class FnsApiClient:
         args:
             req (int): ОГРН или ИНН искомой компании
         """
-        response = requests.get(
-            f"{self.base_url}/check", params={"req": req, "key": self.api_key}
-        )
+        
+        try:
+            logging.debug(f"Отправка в ФНС запроса на получение данных о проверке компании с ИНН: {req}")
+            response = requests.get(
+                f"{self.base_url}/check", params={"req": req, "key": self.api_key}
+            )
 
-        response.raise_for_status()
-        data = response.json()
-        return data
+            response.raise_for_status()
+            data = response.json()
+            return data
+        except Exception as e:
+            logging.error(f"Ошибка при запросе данных из ФНС: {e}")
+            raise
